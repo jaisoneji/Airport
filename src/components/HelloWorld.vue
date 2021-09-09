@@ -59,7 +59,7 @@
     </div>
     <!-- --------Paggination--- -->
     <div class="pagination__footer">
-      <button><i class="fas fa-arrow-left"></i></button>
+      <button @click.prevent="movePrev"><i class="fas fa-arrow-left"></i></button>
       <h6>Showing<span style="padding:0 8px;font-weight:bold">{{this.paggination_start_counter}}-{{this.paggination_end_counter}}</span >of<span style="padding:0 8px;font-weight:bold">{{this.filteredDataLength}}</span></h6>
       <button @click.prevent="moveNext"><i class="fas fa-arrow-right"></i></button>
     </div>
@@ -132,6 +132,17 @@ export default {
     moveNext(){
       this.paggination_start_counter = this.paggination_end_counter
       this.paggination_end_counter += 5
+      this.filteredData.splice(0,this.filteredData.length)
+      for(let i=this.paggination_start_counter;i<this.paggination_end_counter;i++){
+        this.filteredData.push(this.AirportData[i])
+      }
+    },
+    movePrev(){
+      if(this.paggination_start_counter == 0){
+        return
+      }
+      this.paggination_start_counter = this.paggination_start_counter - 5
+      this.paggination_end_counter -= 5
       this.filteredData.splice(0,this.filteredData.length)
       for(let i=this.paggination_start_counter;i<this.paggination_end_counter;i++){
         this.filteredData.push(this.AirportData[i])
