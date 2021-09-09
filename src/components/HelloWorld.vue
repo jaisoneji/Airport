@@ -261,4 +261,24 @@ tr:nth-child(even){
 .airport__data__table{
   overflow-x:scroll
 }
+@media only screen and (max-width: 600px) {
+  .filters__search{
+    display: flex;
+    flex-direction: column;
+    width:100%;
+  }
+  .type{
+    width:100%
+  }
+  .search{
+    width:100%
+  }
+  .filter__header{
+    font-size: 2.5rem;
+  }
+  .airport__header{
+    margin-left: 4px;
+    opacity: 0.2;
+  }
+}
 </style>
