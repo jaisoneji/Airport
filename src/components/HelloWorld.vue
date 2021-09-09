@@ -118,8 +118,16 @@ export default {
   methods:{
     paginate(){
       if (!this.checkedTypes.length){
+        // this.filteredDataArrayLength = this.AirportData.length
+        this.filteredData.splice(0,this.filteredData.length)
+        // console.log(this.AirportData)
+        this.paggination_start_counter = 0;
+        this.paggination_end_counter = 5;
+        for(let i=this.paggination_start_counter;i<this.paggination_end_counter;i++){
+          this.filteredData.push(this.AirportData[i])
+        }
+        this.filteredDataArrayLength = this.AirportData.length
         return this.filteredData
-
       }
       var tempArray = []
       var len = this.AirportData.filter(element =>this.checkedTypes.includes(element.type)).length
@@ -127,6 +135,8 @@ export default {
       for(let i=this.paggination_start_counter;i<this.paggination_end_counter;i++){
         tempArray.push(this.AirportData.filter(element =>this.checkedTypes.includes(element.type))[i])
       }
+      this.filteredData.splice(0,this.filteredData.length)
+      this.filteredData.push(...tempArray)
       return tempArray
     },
     moveNext(){
