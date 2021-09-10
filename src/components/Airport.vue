@@ -61,7 +61,7 @@
     <!-- --------Paggination Footer--- -->
     <div class="pagination__footer">
       <button @click.prevent="movePrev"><i class="fas fa-arrow-left"></i></button>
-      <h6>Showing<span style="padding:0 8px;font-weight:bold">{{this.paggination_start_counter}}-{{this.paggination_end_counter}}</span >of<span style="padding:0 8px;font-weight:bold">{{this.filteredDataLength}}</span></h6>
+      <h6>Showing<span style="padding:0 8px;font-weight:bold">{{parseInt(this.paggination_start_counter)+1}} - {{this.paggination_end_counter}}</span >of<span style="padding:0 8px;font-weight:bold">{{this.filteredDataLength}}</span></h6>
       <button @click.prevent="moveNext"><i class="fas fa-arrow-right"></i></button>
     </div>
   </div>
@@ -82,7 +82,7 @@ export default {
     },
     
   },
-  created(){
+  mounted(){
     this.AirportData.push(...AirportJson)
     this.filteredDataArrayLength = this.AirportData.length
     console.log(this.AirportData)
@@ -91,12 +91,19 @@ export default {
       this.filteredData.push(this.AirportData[i])
     }
     console.log(this.filteredData)
-
+    if((localStorage.getItem('start') + 1) > 1){
+      this.paggination_start_counter = localStorage.getItem('start')
+      this.paggination_end_counter = localStorage.getItem('end')
+    }
+    else{
+      localStorage.setItem('start',0)
+      localStorage.setItem('end',5)
+    }
   },
   data(){
     return{
-      paggination_start_counter:0,
-      paggination_end_counter:5,
+      paggination_start_counter: 0 ,
+      paggination_end_counter: 5,
       checkedTypes:[],
       AirportData : [],
       filteredData:[],
@@ -106,6 +113,7 @@ export default {
   },
   methods:{
     filterArrayOnTypeAndSearch(){
+      
       // The below code will check for any filters selected
       // If none than it returns original Airports Data containing every records with pagination
       if (!this.checkedTypes.length && !this.searchQuery.length){
@@ -131,12 +139,10 @@ export default {
                                               
       this.filteredData.splice(0,this.filteredData.length)
       this.filteredData.push(...tempArray)
-      // this.filteredDataLength = this.filteredData.length
       return tempArray
     },
     searchData(){
         var tempSearchArray = []
-        // var q = this.searchQuery
         var leng = this.AirportData.filter(element =>element.name.toLowerCase().includes(this.searchQuery.toLowerCase(),0)).length
         this.filteredDataArrayLength = leng
         for(let i=this.paggination_start_counter;i<this.paggination_end_counter;i++){
@@ -151,6 +157,8 @@ export default {
     moveNext(){
       this.paggination_start_counter = this.paggination_end_counter
       this.paggination_end_counter += 5
+      localStorage.setItem('start',this.paggination_start_counter)
+      localStorage.setItem('end',this.paggination_end_counter)
       this.filteredData.splice(0,this.filteredData.length)
       this.updateFilteredArray(this.paggination_start_counter,this.paggination_end_counter)
     },
@@ -160,6 +168,8 @@ export default {
       }
       this.paggination_start_counter = this.paggination_start_counter - 5
       this.paggination_end_counter -= 5
+      localStorage.setItem('start',this.paggination_start_counter)
+      localStorage.setItem('end',this.paggination_end_counter)
       this.filteredData.splice(0,this.filteredData.length)
       this.updateFilteredArray(this.paggination_start_counter,this.paggination_end_counter)
     },
