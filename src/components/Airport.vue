@@ -1,42 +1,43 @@
 <template>
   <div class="container">
     <h1 class="filter__header">Filter<span class="airport__header">airports</span></h1>
+    <!-- The filters__search div contains search and Types component -->
     <div class="filters__search">
       <div class="type">
         <h3 class="type__label">Type</h3>
         <div class="filter__checkboxes">
           <label >
-            <input   class="type__checkbox" type="checkbox" name="Small" value="small" v-model="checkedTypes" id="">
+            <input   class="type__checkbox" type="checkbox" name="Small" value="small" v-model="checkedTypes">
             Small
           </label>
           <label >
-            <input   class="type__checkbox" type="checkbox" value="medium" name="Medium" v-model="checkedTypes" id="">
+            <input   class="type__checkbox" type="checkbox" value="medium" name="Medium" v-model="checkedTypes">
             Medium
           </label>
           <label >
-            <input  class="type__checkbox" type="checkbox" value="large"  name="Large" v-model="checkedTypes" id="">
+            <input  class="type__checkbox" type="checkbox" value="large"  name="Large" v-model="checkedTypes">
             Large
           </label>
           <label >
-            <input  class="type__checkbox" type="checkbox" value="heliport" name="Heliport" v-model="checkedTypes" id="">
+            <input  class="type__checkbox" type="checkbox" value="heliport" name="Heliport" v-model="checkedTypes">
             Heliport
           </label>
           <label >
-            <input  class="type__checkbox" type="checkbox" value="closed" name="Closed" v-model="checkedTypes" id="">
+            <input  class="type__checkbox" type="checkbox" value="closed" name="Closed" v-model="checkedTypes">
             Closed
           </label>
           <label >
-            <input  class="type__checkbox" type="checkbox" value="In your favourites" name="In your favourites" v-model="checkedTypes" id="">
+            <input  class="type__checkbox" type="checkbox" value="In your favourites" name="In your favourites" v-model="checkedTypes">
             In your favourites
           </label>
         </div>
       </div>
       <div class="search">
         <h3 class="search__label">Search</h3>
-        <input class="search__input" type="text" name="search" id="search">
+        <input v-model="searchQuery" class="search__input" type="text" name="search" id="search">
       </div>
     </div>
-    <!-- ---Tables---- -->
+    <!-- ---Airport Data Tables---- -->
     <div class="airport__data__table">
       <table>
         <th class="col1">Name</th>
@@ -46,7 +47,7 @@
         <th>Lat.</th>
         <th>Long.</th>
         <th>Type</th>
-        <tr class="rows" v-for="data in filterArray" :key="data.id">
+        <tr class="rows" v-for="(data) in filterArray" :key="data.id">
           <td class="col1">{{data.name}}</td>
           <td>{{data.icao}}</td>
           <td>{{data.iata}}</td>
@@ -57,52 +58,39 @@
         </tr>
       </table>
     </div>
-    <!-- --------Paggination--- -->
+    <!-- --------Paggination Footer--- -->
     <div class="pagination__footer">
       <button @click.prevent="movePrev"><i class="fas fa-arrow-left"></i></button>
       <h6>Showing<span style="padding:0 8px;font-weight:bold">{{this.paggination_start_counter}}-{{this.paggination_end_counter}}</span >of<span style="padding:0 8px;font-weight:bold">{{this.filteredDataLength}}</span></h6>
       <button @click.prevent="moveNext"><i class="fas fa-arrow-right"></i></button>
     </div>
-
   </div>
 </template>
 
 <script>
 import AirportJson from '../data/airports.json';
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  },
+  name: 'Airport',
   computed:{
+    // The Below computed is used for reactivity purpose
     filterArray(){
-      // var tempArray = []
-      // console.log(this.checkedTypes)
-      // if (!this.checkedTypes.length){
-      //   for(let i=this.paggination_start_counter;i<this.paggination_end_counter;i++){
-      //     this.filteredData.push(this.AirportData[i])
-      //   }
-      //   return this.filteredData
-
-      // }
-     
-      // this.AirportData.filter(element =>this.checkedTypes.includes(element.type))
-      // for(let i=this.paggination_start_counter;i<this.paggination_end_counter;i++){
-      //   tempArray.push(this.AirportData.filter(element =>this.checkedTypes.includes(element.type))[i])
-      // }
-      return this.paginate()
+      return this.filterArrayOnTypeAndSearch()
     },
+    // The below returns filtered data array length
     filteredDataLength(){
       return this.filteredDataArrayLength
-    }
+    },
+    
   },
-  mounted(){
+  created(){
     this.AirportData.push(...AirportJson)
     this.filteredDataArrayLength = this.AirportData.length
     console.log(this.AirportData)
+    this.filteredData.splice(0,this.filteredData.length)
     for(let i=this.paggination_start_counter;i<this.paggination_end_counter;i++){
       this.filteredData.push(this.AirportData[i])
     }
+    console.log(this.filteredData)
 
   },
   data(){
@@ -112,40 +100,59 @@ export default {
       checkedTypes:[],
       AirportData : [],
       filteredData:[],
-      filteredDataArrayLength:0
+      filteredDataArrayLength:0,
+      searchQuery:''
     }
   },
   methods:{
-    paginate(){
-      if (!this.checkedTypes.length){
-        // this.filteredDataArrayLength = this.AirportData.length
+    filterArrayOnTypeAndSearch(){
+      // The below code will check for any filters selected
+      // If none than it returns original Airports Data containing every records with pagination
+      if (!this.checkedTypes.length && !this.searchQuery.length){
         this.filteredData.splice(0,this.filteredData.length)
-        // console.log(this.AirportData)
-        this.paggination_start_counter = 0;
-        this.paggination_end_counter = 5;
-        for(let i=this.paggination_start_counter;i<this.paggination_end_counter;i++){
-          this.filteredData.push(this.AirportData[i])
-        }
+        this.updateFilteredArray(this.paggination_start_counter,this.paggination_end_counter)
         this.filteredDataArrayLength = this.AirportData.length
         return this.filteredData
       }
+      // The below code is for search query
+      if(this.searchQuery.length){
+        return this.searchData()
+      }
+      // -----The below code Filters Main Data array with respect to filters selected----
+      // this.checkedTypes stores filters checked
       var tempArray = []
+      // var q = this.searchQuery
       var len = this.AirportData.filter(element =>this.checkedTypes.includes(element.type)).length
       this.filteredDataArrayLength = len
       for(let i=this.paggination_start_counter;i<this.paggination_end_counter;i++){
-        tempArray.push(this.AirportData.filter(element =>this.checkedTypes.includes(element.type))[i])
+        console.log(this.searchQuery)
+        tempArray.push(this.AirportData.filter(element =>this.checkedTypes.includes(element.type))[i])                                     
       }
+                                              
       this.filteredData.splice(0,this.filteredData.length)
       this.filteredData.push(...tempArray)
+      // this.filteredDataLength = this.filteredData.length
       return tempArray
+    },
+    searchData(){
+        var tempSearchArray = []
+        // var q = this.searchQuery
+        var leng = this.AirportData.filter(element =>element.name.toLowerCase().includes(this.searchQuery.toLowerCase(),0)).length
+        this.filteredDataArrayLength = leng
+        for(let i=this.paggination_start_counter;i<this.paggination_end_counter;i++){
+          console.log(this.searchQuery)
+          tempSearchArray.push(this.AirportData.filter(element =>element.name.toLowerCase().includes(this.searchQuery.toLowerCase(),0))[i])                                     
+        }
+        this.filteredData.splice(0,this.filteredData.length)
+        this.filteredData.push(...tempSearchArray)
+        this.filteredDataArrayLength = leng
+        return tempSearchArray
     },
     moveNext(){
       this.paggination_start_counter = this.paggination_end_counter
       this.paggination_end_counter += 5
       this.filteredData.splice(0,this.filteredData.length)
-      for(let i=this.paggination_start_counter;i<this.paggination_end_counter;i++){
-        this.filteredData.push(this.AirportData[i])
-      }
+      this.updateFilteredArray(this.paggination_start_counter,this.paggination_end_counter)
     },
     movePrev(){
       if(this.paggination_start_counter == 0){
@@ -154,13 +161,14 @@ export default {
       this.paggination_start_counter = this.paggination_start_counter - 5
       this.paggination_end_counter -= 5
       this.filteredData.splice(0,this.filteredData.length)
-      for(let i=this.paggination_start_counter;i<this.paggination_end_counter;i++){
-        this.filteredData.push(this.AirportData[i])
-      }
+      this.updateFilteredArray(this.paggination_start_counter,this.paggination_end_counter)
     },
-    // updateAirportType(){
-    //   this.filterArray
-    // }
+    updateFilteredArray(start,end){
+      for(let i=start;i<end;i++){
+        this.filteredData.push(this.AirportData[i])
+        console.log(this.filteredData)
+      }
+    }
     
   }
 }
@@ -170,7 +178,6 @@ export default {
 <style scoped>
 button{
   border:none;
-
 }
 .fas{
   font-size:xx-large!important;
@@ -184,7 +191,6 @@ button{
 }
 .filters__search{
   display: flex;
-
 }
 .type{
   width:60%
@@ -246,7 +252,7 @@ INPUT[type=text]:focus{
   
 }
 .col1{
-  
+  word-break: break-all;
   width:100%;
 }
 th{
@@ -254,6 +260,7 @@ th{
  margin:0;
 }
 td, th {
+  word-break: break-all;
   word-wrap:break-word;
   line-break: strict;
   margin:0;
@@ -270,7 +277,7 @@ tr:nth-child(even){
   background-color: #f4f4f4;
 }
 .pagination__footer{
-  margin-top:2rem;
+  margin-top:1rem;
   display:flex;
   align-items: center;
   justify-content: space-between;
