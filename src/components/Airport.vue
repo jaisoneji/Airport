@@ -99,6 +99,7 @@ export default {
       localStorage.setItem('start',0)
       localStorage.setItem('end',5)
     }
+    
   },
   data(){
     return{
@@ -201,6 +202,7 @@ button{
 }
 .filters__search{
   display: flex;
+  
 }
 .type{
   width:60%
@@ -262,7 +264,7 @@ INPUT[type=text]:focus{
   
 }
 .col1{
-  word-break: break-all;
+  /* word-break: break-all; */
   width:100%;
 }
 th{
@@ -270,9 +272,6 @@ th{
  margin:0;
 }
 td, th {
-  word-break: break-all;
-  word-wrap:break-word;
-  line-break: strict;
   margin:0;
   padding: 1rem 2rem;
   margin:0;
@@ -302,7 +301,7 @@ tr:nth-child(even){
 @media only screen and (max-width: 600px) {
   .filters__search{
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     width:100%;
   }
   .type{
