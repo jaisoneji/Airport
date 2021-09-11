@@ -1,6 +1,9 @@
 <template>
   <div class="container">
-    <h1 class="filter__header">Filter<span class="airport__header">airports</span></h1>
+    <div class="header">
+      <h1 class="filter__header">Filter<span class="airport__header">airports</span></h1>
+       <i class="fas fa-th-large"></i> 
+    </div>
     <!-- The filters__search div contains search and Types component -->
     <div class="filters__search">
       <div class="type">
@@ -187,6 +190,12 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.header{
+  display: flex;
+  width:100%;
+  align-items: center;
+  justify-content: space-between;
+}
 button{
   border:none;
 }
@@ -299,6 +308,10 @@ tr:nth-child(even){
   overflow-x:scroll
 }
 @media only screen and (max-width: 600px) {
+  .header i{
+    margin:4px 0 0 4px;
+    font-size: medium!important;
+  }
   .filters__search{
     display: flex;
     flex-direction: column-reverse;
